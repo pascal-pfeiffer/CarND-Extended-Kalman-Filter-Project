@@ -11,7 +11,7 @@ Tools::~Tools() {}
 
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
-  
+  // taken from the course
   //std::cout << "Length of ground_truth vector: " << ground_truth.size() << std::endl;
   //std::cout << "Length of estimations vector: " << estimations.size() << std::endl;
   
@@ -67,7 +67,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
-
+  // taken from the course
   MatrixXd Hj(3,4);
   
   if (x_state.size() == 0) {
