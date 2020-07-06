@@ -83,15 +83,15 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       // To convert from Polar Coordinates (rho, phi) to Cartesian Coordinates (x,y) :
       //   x = rho × cos( phi )
       //   y = rho × sin( phi )
-      float rho =  measurement_pack.raw_measurements_[0];  // range
-      float phi =  measurement_pack.raw_measurements_[1];  // counter-clockwise from x-axis
-      float rho_dot =  measurement_pack.raw_measurements_[2];  // The range rate, is the projection of the velocity onto the line
+      float rho = measurement_pack.raw_measurements_[0];  // range
+      float phi = measurement_pack.raw_measurements_[1];  // counter-clockwise from x-axis
+      float rho_dot = measurement_pack.raw_measurements_[2];  // The range rate, is the projection of the velocity onto the line
       
       float x = rho * cos(phi);
       float y = rho * sin(phi);
       
-      float vx = 0;  // TODO
-      float vy = 0;  // TODO
+      float vx = rho_dot * cos(phi);
+      float vy = rho_dot * sin(phi);
       
       // and initialize state.
       ekf_.x_ << x, y, vx, vy;
@@ -156,7 +156,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
     // TODO: Radar updates
-
+    ekf_.H_ = tools.CalculateJacobian(ekf_.x_);  // use jacobian H matrix
+    ekf_.R_ = R_radar_;
+    // ekf_.UpdateEKF(measurement_pack.raw_measurements_);  // TODO
   } else {
     // TODO: Laser updates
     // use laser measurement matrice H 
