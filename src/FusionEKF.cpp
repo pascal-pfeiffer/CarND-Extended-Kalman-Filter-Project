@@ -159,8 +159,12 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
   } else {
     // TODO: Laser updates
+    // use laser measurement matrice H 
+    // use laser measurement covariance matrix R
+    ekf_.H_ = H_laser_;
+    ekf_.R_ = R_laser_;
     // taken from the course
-    //ekf_.Update(measurement_pack.raw_measurements_);
+    ekf_.Update(measurement_pack.raw_measurements_);
   }
 
   // print the output
