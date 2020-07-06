@@ -1,4 +1,5 @@
 #include "kalman_filter.h"
+#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -56,4 +57,47 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   /**
    * TODO: update the state by using Extended Kalman Filter equations
    */
+  
+  // these two lines must be replaced by their EKF counterparts
+  // VectorXd z_pred = H_ * x_;
+  // VectorXd y = z - z_pred;
+  
+  // x' = f(x, u)  , u = 0
+  // x' are the cartesian coodinates (x_coord, y_coord, vx, vy) transformed to 
+  // polar coordinates for the radar measurement (rho, psi, rho_dot)
+  // y = z - h(x')
+  float x_coord = x_(0);
+  float y_coord = x_(1);
+  float vx = x_(2);
+  float vy = x_(3);
+  
+  // from the course
+  float rho = sqrt(x_coord * x_coord + y_coord * y_coord);
+  float psi = atan2(y_coord, x_coord);  // atan2 for all 4 quadrants
+  float rho_dot = ((x_coord * vx) + (y_coord * vy)) / rho;
+  
+  VectorXd h = VectorXd(3);
+  h << rho, psi, rho_dot;
+  
+  VectorXd y = z - h;
+
+  // bind psi value in y between -pi and +pi
+  while (y(1) < -M_PI) {
+    y(1) += (2 * M_PI);
+  }
+  while (y(1) > M_PI) {
+    y(1) -= (2 * M_PI);
+  }
+  
+  MatrixXd Ht = H_.transpose();
+  MatrixXd S = H_ * P_ * Ht + R_;
+  MatrixXd Si = S.inverse();
+  MatrixXd PHt = P_ * Ht;
+  MatrixXd K = PHt * Si;
+
+  //new estimate
+  x_ = x_ + (K * y);
+  long x_size = x_.size();
+  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  P_ = (I - K * H_) * P_;
 }
